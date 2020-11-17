@@ -1,0 +1,52 @@
+{% extends 'pages/base.html' %}
+{% block head_title %}
+Homepage
+{% endblock head_title %}
+
+{% block content %}
+<div class="row text-center">
+    <div class="col">
+        <h1 class="display-4 m-4">Welcome to Ghost Tweets</h1>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-4  mx-auto col-10">
+        <form class="form" action="/create_tweet" method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="/">
+            <textarea name="content" class="form-control mb-2" placeholder="Your Tweet.." cols="30" rows="5"></textarea>
+            <button class="btn bg-tweetme text-white my-2 my-sm-0" type="submit">Tweet</button>
+        </form>
+    </div>
+</div>
+<div class="row" id="tweets">
+    loading..
+</div>
+<script>
+    function likeHandler(id, likes){
+        console.log(id,likes)
+    }
+    function fromateTweetElement(tweet){
+        let formattedtweet = `<div class='m-4 col-12 p-4 border-top border-bottom' id ='tweet-${tweet.id}'><p> ${tweet.content}</p><button class="btn btn-outline-primary my-2 my-sm-0" onclick=${likeHandler(tweet.id,tweet.likes)}>Like</button></div>`
+        return formattedtweet
+    }
+    const tweetElements = document.getElementById('tweets')
+    const xhr = new XMLHttpRequest()
+    const method = 'GET'
+    const url = "/tweets"
+    const responseType = 'json'
+    xhr.responseType = responseType
+    xhr.open(method, url)
+    xhr.onload = ()=>{
+        const serverResponse = xhr.response
+        const tweet_list = serverResponse.response
+        let final_list = ''
+        for(i=0; i<tweet_list.length; i++){
+            final_list += fromateTweetElement(tweet_list[i])
+        }
+        tweetElements.innerHTML = final_list
+    }
+    
+    xhr.send()
+</script>
+{% endblock content %}
