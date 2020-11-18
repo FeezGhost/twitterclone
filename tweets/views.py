@@ -10,22 +10,25 @@ def homeView(request):
 
 def  TweetList(request):
     tweet_query = Tweets.objects.all()
-    tweet_list = [{"id":tweet.id, "content":tweet.content,"likes":random.randint(0,123312313) } for tweet in tweet_query]
+    tweet_list = [tweet.serialize() for tweet in tweet_query]
     data= {
         "response": tweet_list
-
     }
     return JsonResponse(data)
 
 def TweetCreateView(request):
     form = TweetsForm(request.POST or None)
-    print(form)
+    print("ajax",request.is_ajax())
     print("hi")
     if form.is_valid():
-        print("hello")
         obj = form.save()
         print(obj)
         obj.save
+        if request.is_ajax():
+            data= {
+                "response": obj.serialize()
+            }
+            return JsonResponse(data, status=201)
         form = TweetsForm()
         return redirect("homepage")
     
